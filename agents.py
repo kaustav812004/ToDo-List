@@ -5,19 +5,41 @@ from tools.barber_tools import ALL_TOOLS
 
 class BarberAgents:
     def __init__(self, model: str = "gpt-4o"):
+        azure_base = os.getenv("AZURE_API_BASE")
+        azure_key = os.getenv("AZURE_API_KEY")
+        azure_version = os.getenv("AZURE_API_VERSION")
+        azure_deploy = os.getenv("AZURE_DEPLOYMENT_NAME", model)
+        openai_key = os.getenv("OPENAI_API_KEY")
+
         try:
-            self.llm = LLM(
-                api_base=os.getenv("AZURE_API_BASE"),
-                api_key=os.getenv("AZURE_API_KEY"),
-                api_version=os.getenv("AZURE_API_VERSION"),
-                model=f"azure/{os.getenv('AZURE_DEPLOYMENT_NAME', model)}",
-                temperature=0.4,
-                max_tokens=1200,
-                timeout=60,
-                max_retries=3,
-            )
+            if azure_base and azure_key and azure_version and azure_deploy:
+                self.llm = LLM(
+                    api_base=azure_base,
+                    api_key=azure_key,
+                    api_version=azure_version,
+                    model=f"azure/{azure_deploy}",
+                    temperature=0.4,
+                    max_tokens=1200,
+                    timeout=60,
+                    max_retries=3,
+                )
+            elif openai_key:
+                # Fallback to OpenAI if available
+                self.llm = LLM(
+                    api_key=openai_key,
+                    model="gpt-4o-mini",
+                    temperature=0.4,
+                    max_tokens=1200,
+                    timeout=60,
+                    max_retries=3,
+                )
+            else:
+                raise RuntimeError(
+                    "Missing Azure OpenAI env (AZURE_API_BASE, AZURE_API_KEY, AZURE_API_VERSION, AZURE_DEPLOYMENT_NAME) "
+                    "and no OPENAI_API_KEY fallback found. Configure `.env` before running."
+                )
         except Exception as e:
-            print("[ERROR] Azure LLM init failed:", e)
+            print("[ERROR] LLM init failed:", e)
             raise
 
     def customer_service_manager(self) -> Agent:

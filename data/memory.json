@@ -1,1 +1,19 @@
-{}
+{
+  "john@example.com": [
+    {
+      "timestamp": "2025-08-12T22:24:31.577305+00:00",
+      "role": "user",
+      "content": "booking"
+    },
+    {
+      "timestamp": "2025-08-12T22:25:27.127583+00:00",
+      "role": "user",
+      "content": "booking"
+    },
+    {
+      "timestamp": "2025-08-12T22:26:13.342042+00:00",
+      "role": "user",
+      "content": "booking"
+    }
+  ]
+}

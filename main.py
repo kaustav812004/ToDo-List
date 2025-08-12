@@ -120,19 +120,15 @@ class BarberServiceCrew:
         # Include conversation history as context (memory)
         history_summary = self.memory.summarize_history(self.customer_id)
         for t in crew_tasks:
-            # crewai Task supports 'context' param in newer versions; fallback to prepend
-            try:
-                t.context = [history_summary]
-            except Exception:
-                t.description = (
-                    "Conversation history (latest first):\n" + history_summary + "\n\n" + t.description
-                )
+            t.description = (
+                "Conversation history (latest first):\n" + history_summary + "\n\n" + t.description
+            )
 
         crew = Crew(
             agents=crew_agents,
             tasks=crew_tasks,
             verbose=True,
-            memory=True,
+            memory=False,
         )
 
         result = crew.kickoff()

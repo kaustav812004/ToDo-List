@@ -32,8 +32,6 @@ def check_cal_availability(date_str: str, time_str: Optional[str] = None, durati
     if not CAL_API_KEY or not CAL_EVENT_TYPE_ID:
         return {"ok": False, "error": "Cal API not configured"}
 
-    # Note: Cal.com public API for availability may vary by version. Here we request event-type availability.
-    # If a specific endpoint is unavailable, the tool will instruct the agent to offer alternatives.
     iso_start = parse_to_iso(date_str, time_str)
     try:
         resp = requests.get(
@@ -83,19 +81,3 @@ def create_cal_booking(
         return {"ok": True, "data": resp.json()}
     except Exception as e:
         return {"ok": False, "error": str(e)}
-
-
-# LangChain tool wrappers
-from langchain_core.tools import tool
-
-
-@tool
-def cal_check_availability(date: str, time: Optional[str] = None, duration_minutes: int = 30) -> dict:
-    """Check Cal.com availability for a given date/time and duration. Returns JSON."""
-    return check_cal_availability(date, time, duration_minutes)
-
-
-@tool
-def cal_make_booking(name: str, email: str, date: str, time: str, notes: Optional[str] = None, timezone: Optional[str] = None) -> dict:
-    """Create a Cal.com booking for the provided customer name/email and date/time. Returns JSON."""
-    return create_cal_booking(name, email, date, time, notes, timezone)
